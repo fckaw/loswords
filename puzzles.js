@@ -52,7 +52,7 @@ window.puzzles = [
   {
     "id": 8,
     "mode": "phrase",
-    "answer": "felfoldi tabor",
+    "answer": "felfoldi",
     "clue": "Equivalent in Hungarian?",
     "image": "8.jpg"
   },
@@ -80,7 +80,7 @@ window.puzzles = [
   {
     "id": 12,
     "mode": "phrase",
-    "answer": "feed me now!",
+    "answer": "feed me, now!",
     "clue": "",
     "image": "12.jpg"
   },
@@ -122,7 +122,7 @@ window.puzzles = [
   {
     "id": 18,
     "mode": "phrase",
-    "answer": "take time to chill",
+    "answer": "chill time",
     "clue": "",
     "image": "18.jpg"
   },
@@ -142,9 +142,9 @@ window.puzzles = [
   },
   {
     "id": 21,
-    "mode": "",
-    "answer": "",
+    "mode": "phrase",
+    "answer": "upward spiral",
     "clue": "",
-    "image": ""
+    "image": "21.jpg"
   }
 ];

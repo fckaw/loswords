@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Memedle</title>
+
+<style>
+/* Basic layout */
+body {
+  font-family: system-ui, sans-serif;
+  background: #111827;
+  color: #e5e7eb;
+  margin: 0;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Title */
+h1 {
+  margin: 6px 0;
+  font-size: 7vw;
+  text-align: center;
+}
+@media (min-width: 480px) { h1 { font-size: 28px; } }
+
+/* Clue + instructions */
+#clue {
+  color: #9ca3af;
+  text-align: center;
+  margin-top: 6px;
+  margin-bottom: 12px;
+  font-size: 3.5vw;
+  max-width: 420px;
+  line-height: 1.3;
+}
+@media (min-width: 480px) { #clue { font-size: 15px; } }
+
+#clue .instruction {
+  display: block;
+  margin-top: 4px;
+  color: #d1d5db;
+  font-size: 3.2vw;
+}
+@media (min-width: 480px) { #clue .instruction { font-size: 14px; } }
+
+/* Media */
+#meme-image,
+#meme-video {
+  width: 100%;
+  max-width: 340px;
+  border-radius: 8px;
+  margin-bottom: 14px;
+}
+
+/* Grid container – controls width for BOTH word & phrase */
+#grid {
+  width: 100%;
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+/* WORD MODE tiles */
+.rows-container {
+  width: 100%;
+  display: grid;
+  grid-template-rows: repeat(6, auto);
+  gap: 4px;
+}
+.row {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.tile {
+  width: 100%;
+  border: 2px solid #4b5563;
+  position: relative;
+  box-sizing: border-box;
+}
+.tile::before {
+  /* Cross-browser square */
+  content: "";
+  display: block;
+  padding-top: 100%;
+}
+.tile-inner {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  text-transform: uppercase;
+  color: #fff;
+  font-size: 7vw;              /* nice size on mobile */
+}
+@media (min-width: 480px) {
+  .tile-inner { font-size: 26px; }  /* bigger on desktop */
+}
+
+.correct { background: #16a34a; border-color: #16a34a; }
+.present { background: #eab308; border-color: #eab308; }
+.absent  { background: #374151; border-color: #374151; }
+.filled  { border-color: #9ca3af; }
+
+/* PHRASE MODE */
+.phrase-container {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+.phrase-word {
+  display: flex;
+  gap: 4px;
+}
+.phrase-tile {
+  width: min(8vw, 40px);
+  height: min(8vw, 40px);
+  border: 2px solid #4b5563;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: min(4.5vw, 18px);
+  font-weight: bold;
+  text-transform: uppercase;
+  box-sizing: border-box;
+}
+.fixed {
+  background: #1f2937;
+  border-color: #1f2937;
+  color: #9ca3af;
+}
+.revealed {
+  background: #16a34a;
+  border-color: #16a34a;
+  color: white;
+}
+
+/* Lives & messages */
+#lives {
+  margin-top: 4px;
+  font-size: 3.5vw;
+  color: #9ca3af;
+}
+@media (min-width: 480px) { #lives { font-size: 14px; } }
+
+#message {
+  margin-top: 10px;
+  min-height: 20px;
+  text-align: center;
+  color: #facc15;
+  font-size: 3.8vw;
+}
+@media (min-width: 480px) { #message { font-size: 15px; } }
+
+/* Keyboard */
+#keyboard {
+  margin-top: 18px;
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.key-row {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+}
+.key {
+  background: #4b5563;
+  color: #e5e7eb;
+  border: none;
+  border-radius: 999px;
+  font-weight: 600;
+  text-align: center;
+  padding: 10px 8px;
+  min-width: 32px;
+  max-width: 42px;
+  font-size: 3.3vw;
+  cursor: pointer;
+}
+@media (min-width: 480px) { .key { font-size: 14px; } }
+.key.wide {
+  min-width: 60px;
+  max-width: 80px;
+}
+.key.correct { background: #16a34a; }
+.key.present { background: #eab308; }
+.key.absent  { background: #374151; }
+
+/* Next button */
+#controls {
+  margin-top: 16px;
+  width: 100%;
+  max-width: 360px;
+  display: flex;
+  justify-content: flex-end;
+}
+#nextButton {
+  padding: 12px 20px;
+  border-radius: 9999px;
+  border: none;
+  background: #2563eb;
+  color: #e5e7eb;
+  font-weight: bold;
+  cursor: pointer;
+}
+@media (min-width: 480px) { #nextButton { font-size: 15px; } }
+
+/* Hidden input */
+#hiddenInput {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  border: 0;
+  padding: 0;
+}
+</style>
+</head>
+
+<body>
+
+<!-- cache-busted puzzles.js so mobile fetches the latest version -->
+<script src="puzzles.js?v=2"></script>
+
+<h1 id="title">Memedle</h1>
+<div id="clue"></div>
+
+<img id="meme-image" style="display:none" />
+<video id="meme-video" playsinline muted loop style="display:none"></video>
+
+<div id="grid"></div>
+<div id="lives"></div>
+<div id="keyboard"></div>
+<div id="message"></div>
+
+<div id="controls">
+  <button id="nextButton">Next puzzle</button>
+</div>
+
+<input id="hiddenInput" type="text"
+       autocomplete="off" autocorrect="off"
+       autocapitalize="none" spellcheck="false" />
+
+<script>
+/************* PUZZLES *************/
+const puzzles = window.puzzles || [];
+
+/************* STATE & DOM *************/
+let currentIndex = 0;
+let mode = null;
+let gameOver = false;
+
+const titleEl     = document.getElementById("title");
+const clueEl      = document.getElementById("clue");
+const imgEl       = document.getElementById("meme-image");
+const videoEl     = document.getElementById("meme-video");
+const gridEl      = document.getElementById("grid");
+const livesEl     = document.getElementById("lives");
+const keyboardEl  = document.getElementById("keyboard");
+const messageEl   = document.getElementById("message");
+const hiddenInput = document.getElementById("hiddenInput");
+const nextButton  = document.getElementById("nextButton");
+
+/************* MEDIA *************/
+function showMedia(file) {
+  if (!file) {
+    imgEl.style.display = "none";
+    videoEl.style.display = "none";
+    return;
+  }
+  const lower = file.toLowerCase();
+  if (lower.endsWith(".mp4")) {
+    imgEl.style.display = "none";
+    videoEl.style.display = "block";
+    videoEl.src = file;
+    videoEl.play().catch(()=>{});
+  } else {
+    videoEl.style.display = "none";
+    videoEl.pause();
+    imgEl.style.display = "block";
+    imgEl.src = file;
+  }
+}
+
+/************* KEYBOARD *************/
+const keyButtons = {};
+const keyboardLayout = [
+  ["Q","W","E","R","T","Y","U","I","O","P"],
+  ["A","S","D","F","G","H","J","K","L"],
+  ["ENTER","Z","X","C","V","B","N","M","BACK"]
+];
+
+function buildKeyboard() {
+  keyboardEl.innerHTML = "";
+  keyboardLayout.forEach(row => {
+    const rowDiv = document.createElement("div");
+    rowDiv.className = "key-row";
+
+    row.forEach(key => {
+      const btn = document.createElement("button");
+      btn.classList.add("key");
+      if (key === "ENTER" || key === "BACK") btn.classList.add("wide");
+
+      btn.textContent = key === "BACK" ? "⌫" : key;
+      btn.dataset.key = key;
+
+      btn.addEventListener("click", () => {
+        handleKeyPress(key);
+        hiddenInput.focus();
+      });
+
+      keyButtons[key] = btn;
+      rowDiv.appendChild(btn);
+    });
+
+    keyboardEl.appendChild(rowDiv);
+  });
+}
+
+function resetKeyboard() {
+  for (let k in keyButtons) {
+    keyButtons[k].classList.remove("correct","present","absent");
+  }
+}
+
+function setKeyStatus(letter, status) {
+  const key = letter.toUpperCase();
+  const btn = keyButtons[key];
+  if (!btn) return;
+
+  if (status === "correct") {
+    btn.classList.remove("present","absent");
+    btn.classList.add("correct");
+  } else if (status === "present") {
+    if (!btn.classList.contains("correct")) {
+      btn.classList.remove("absent");
+      btn.classList.add("present");
+    }
+  } else if (status === "absent") {
+    if (!btn.classList.contains("correct") &&
+        !btn.classList.contains("present")) {
+      btn.classList.add("absent");
+    }
+  }
+}
+
+/************* WORD MODE *************/
+let wAnswer = "";
+let wCols   = 5;
+let wRows   = 6;
+let wTiles  = [];
+let wCurrentRow = 0;
+let wCurrentCol = 0;
+
+function setupWord(p) {
+  wAnswer = p.answer.toLowerCase();
+  wCols = wAnswer.length;
+  wTiles = [];
+  wCurrentRow = 0;
+  wCurrentCol = 0;
+
+  const container = document.createElement("div");
+  container.className = "rows-container";
+
+  for (let r=0; r<wRows; r++) {
+    const rowEl = document.createElement("div");
+    rowEl.className = "row";
+    wTiles[r] = [];
+
+    for (let c=0; c<wCols; c++) {
+      const tile = document.createElement("div");
+      tile.className = "tile";
+      const inner = document.createElement("div");
+      inner.className = "tile-inner";
+      tile.appendChild(inner);
+      rowEl.appendChild(tile);
+      wTiles[r][c] = { outer: tile, inner: inner };
+    }
+
+    container.appendChild(rowEl);
+  }
+
+  gridEl.appendChild(container);
+}
+
+function handleWordKey(k) {
+  if (k === "ENTER") return submitWord();
+  if (k === "BACK" || k === "BACKSPACE") {
+    if (wCurrentCol > 0) {
+      wCurrentCol--;
+      const cell = wTiles[wCurrentRow][wCurrentCol];
+      cell.inner.textContent = "";
+      cell.outer.classList.remove("filled");
+    }
+    return;
+  }
+
+  if (/^[A-Z]$/.test(k) && wCurrentCol < wCols) {
+    const cell = wTiles[wCurrentRow][wCurrentCol];
+    cell.inner.textContent = k;
+    cell.outer.classList.add("filled");
+    wCurrentCol++;
+  }
+}
+
+function submitWord() {
+  if (wCurrentCol < wCols) {
+    showMessage("Not enough letters.");
+    return;
+  }
+
+  let guess = "";
+  for (let i=0;i<wCols;i++) {
+    guess += wTiles[wCurrentRow][i].inner.textContent.toLowerCase();
+  }
+
+  const result = evaluateWord(guess, wAnswer);
+  colorRow(result);
+  updateKeyboardWord(result, guess);
+
+  if (guess === wAnswer) {
+    showMessage("Correct!");
+    gameOver = true;
+    return;
+  }
+
+  wCurrentRow++;
+  wCurrentCol = 0;
+
+  if (wCurrentRow === wRows) {
+    showMessage("Out of tries! " + wAnswer.toUpperCase());
+    gameOver = true;
+  }
+}
+
+function colorRow(result) {
+  for (let i=0;i<wCols;i++) {
+    const cell = wTiles[wCurrentRow][i];
+    cell.outer.classList.remove("filled");
+    cell.outer.classList.add(result[i]);
+  }
+}
+
+function evaluateWord(guess, answer) {
+  const res = Array(answer.length).fill("absent");
+  const arr = answer.split("");
+
+  // greens
+  for (let i=0;i<answer.length;i++) {
+    if (guess[i] === answer[i]) {
+      res[i] = "correct";
+      arr[i] = null;
+    }
+  }
+
+  // yellows
+  for (let i=0;i<answer.length;i++) {
+    if (res[i]==="correct") continue;
+    const idx = arr.indexOf(guess[i]);
+    if (idx !== -1) {
+      res[i] = "present";
+      arr[idx] = null;
+    }
+  }
+
+  return res;
+}
+
+function updateKeyboardWord(result, guess) {
+  for (let i=0;i<guess.length;i++) {
+    setKeyStatus(guess[i], result[i]);
+  }
+}
+
+/************* PHRASE MODE *************/
+const MAX_WRONG = 5;
+let pAnswer = "";
+let pTiles = [];
+let pRevealed = {};
+let pGuessed = new Set();
+let pUnique = 0;
+let pWrong = 0;
+
+function setupPhrase(p) {
+  pAnswer = p.answer.toLowerCase();
+  pTiles = [];
+  pRevealed = {};
+  pGuessed.clear();
+  pWrong = 0;
+
+  const letters = new Set();
+  for (let ch of pAnswer) if (/[a-z]/.test(ch)) letters.add(ch);
+  pUnique = letters.size;
+
+  const wrapper = document.createElement("div");
+  wrapper.className = "phrase-container";
+
+  let group = null;
+
+  for (let i=0;i<pAnswer.length;i++) {
+    const ch = pAnswer[i];
+
+    if (ch === " ") {
+      group = null;
+      pTiles[i] = null;
+      continue;
+    }
+
+    if (!group) {
+      group = document.createElement("div");
+      group.className = "phrase-word";
+      wrapper.appendChild(group);
+    }
+
+    const tile = document.createElement("div");
+    tile.className = "phrase-tile";
+
+    if (/[a-z]/.test(ch)) {
+      tile.textContent = "";
+    } else {
+      tile.classList.add("fixed");
+      tile.textContent = ch;
+    }
+
+    group.appendChild(tile);
+    pTiles[i] = tile;
+
+    if (ch === "-") group = null;   // allow wrap after hyphens
+  }
+
+  gridEl.appendChild(wrapper);
+  updateLives();
+}
+
+function handlePhraseKey(letter) {
+  const l = letter.toLowerCase();
+  if (!/[a-z]/.test(l)) return;
+  if (pGuessed.has(l)) return;
+
+  pGuessed.add(l);
+
+  if (pAnswer.includes(l)) {
+    pAnswer.split("").forEach((ch,i)=>{
+      if (ch === l && pTiles[i]) {
+        pTiles[i].classList.add("revealed");
+        pTiles[i].textContent = letter.toUpperCase();
+      }
+    });
+
+    setKeyStatus(letter, "correct");
+    pRevealed[l] = true;
+
+    if (Object.keys(pRevealed).length === pUnique) {
+      showMessage("Solved!");
+      gameOver = true;
+    }
+  } else {
+    pWrong++;
+    setKeyStatus(letter, "absent");
+    updateLives();
+    if (pWrong >= MAX_WRONG) {
+      showMessage("Out of guesses! " + pAnswer.toUpperCase());
+      gameOver = true;
+    }
+  }
+}
+
+function updateLives() {
+  if (mode === "phrase") {
+    livesEl.textContent = `Wrong guesses: ${pWrong} / ${MAX_WRONG}`;
+  } else {
+    livesEl.textContent = "";
+  }
+}
+
+/************* INPUT *************/
+function handleKeyPress(k) {
+  if (gameOver) return;
+
+  const key = k.toUpperCase();
+  if (mode === "word") return handleWordKey(key);
+  if (mode === "phrase" && /^[A-Z]$/.test(key)) return handlePhraseKey(key);
+}
+
+document.addEventListener("keydown", e => {
+  if (e.key === "Enter") handleKeyPress("ENTER");
+  else if (e.key === "Backspace") handleKeyPress("BACK");
+  else if (/^[a-zA-Z]$/.test(e.key)) handleKeyPress(e.key);
+});
+
+document.body.addEventListener("click", () => hiddenInput.focus());
+
+nextButton.addEventListener("click", () => {
+  if (!puzzles.length) return;  // nothing to do
+  currentIndex = (currentIndex + 1) % puzzles.length;
+  loadPuzzle(currentIndex);
+});
+
+/************* LOADING PUZZLES *************/
+function loadPuzzle(index) {
+  if (!puzzles.length) {
+    titleEl.textContent = "Memedle";
+    clueEl.textContent  = "No puzzles loaded. Check puzzles.js.";
+    gridEl.innerHTML    = "";
+    showMedia(null);
+    return;
+  }
+
+  const p = puzzles[index % puzzles.length];
+  mode = p.mode;
+  gameOver = false;
+
+  resetKeyboard();
+  gridEl.innerHTML = "";
+  messageEl.textContent = "";
+  livesEl.textContent = "";
+
+  titleEl.textContent = "Memedle #" + (index + 1);
+  showMedia(p.image);
+
+  clueEl.innerHTML =
+    p.clue +
+    `<br><span class="instruction">${
+      mode === "word"
+        ? "Guess the 5-letter answer. ENTER to submit."
+        : "Guess letters. Wrong guesses cost lives."
+    }</span>`;
+
+  if (mode === "word") setupWord(p);
+  else setupPhrase(p);
+
+  setTimeout(() => hiddenInput.focus(), 50);
+}
+
+/************* START *************/
+buildKeyboard();
+loadPuzzle(currentIndex);
+
+function showMessage(msg) {
+  messageEl.textContent = msg;
+}
+</script>
+
+</body>
+</html>

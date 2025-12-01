@@ -71,7 +71,7 @@ body.high-contrast .modal-content {
 /* Top bar with title */
 #top-bar {
   width: 100%;
-  max-width: 420px;
+  max-width: 520px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -93,7 +93,7 @@ h1#title {
 /* Puzzle date label */
 #today {
   width: 100%;
-  max-width: 420px;
+  max-width: 520px;
   text-align: center;
   font-size: 13px;
   color: #f9fafb;
@@ -103,7 +103,7 @@ h1#title {
 /* Archive nav */
 #nav {
   width: 100%;
-  max-width: 420px;
+  max-width: 520px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -162,7 +162,7 @@ h1#title {
   margin-top: 6px;
   margin-bottom: 12px;
   font-size: 3.7vw;
-  max-width: 420px;
+  max-width: 520px;
   line-height: 1.5;
 }
 @media (min-width: 480px) { #clue { font-size: 16px; } }
@@ -184,11 +184,17 @@ h1#title {
   margin-bottom: 14px;
   box-shadow: 0 12px 30px rgba(0,0,0,0.4);
 }
+@media (min-width: 768px) {
+  #meme-image,
+  #meme-video {
+    max-width: 520px;
+  }
+}
 
 /* Grid container */
 #grid {
   width: 100%;
-  max-width: 420px;
+  max-width: 520px;
   margin: 0 auto;
 }
 
@@ -251,7 +257,7 @@ h1#title {
 #keyboard {
   margin-top: 18px;
   width: 100%;
-  max-width: 400px;
+  max-width: 520px;
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -398,7 +404,7 @@ h1#title {
   white-space: nowrap;
 }
 
-/* Modal actions (share / tip / subscribe) */
+/* Modal actions (share / tip / subscribe / reset) */
 .modal-actions {
   margin-top: 14px;
   display: flex;
@@ -414,6 +420,10 @@ h1#title {
   font-weight: 600;
   font-size: 14px;
   cursor: pointer;
+}
+#resetStatsButton {
+  background: #7f1d1d;
+  border-color: #b91c1c;
 }
 
 /* Accessibility modal toggles */
@@ -444,7 +454,7 @@ h1#title {
 
 <body>
 
-<!-- still using your existing puzzles.js -->
+<!-- puzzles.js must define window.puzzles -->
 <script src="puzzles.js?v=2"></script>
 
 <div id="top-bar">
@@ -514,6 +524,7 @@ h1#title {
       <button id="shareButton">Share</button>
       <button id="tipButton">Tip / Buy me a coffee</button>
       <button id="subscribeButton">Subscribe</button>
+      <button id="resetStatsButton">Reset stats</button>
     </div>
   </div>
 </div>
@@ -605,9 +616,10 @@ const achievementsList  = document.getElementById("achievementsList");
 const prevBtn     = document.getElementById("prevBtn");
 const nextBtn     = document.getElementById("nextBtn");
 
-const shareButton     = document.getElementById("shareButton");
-const tipButton       = document.getElementById("tipButton");
-const subscribeButton = document.getElementById("subscribeButton");
+const shareButton       = document.getElementById("shareButton");
+const tipButton         = document.getElementById("tipButton");
+const subscribeButton   = document.getElementById("subscribeButton");
+const resetStatsButton  = document.getElementById("resetStatsButton");
 
 const accessibilityButton = document.getElementById("accessibilityButton");
 const accessibilityModal  = document.getElementById("accessibilityModal");
@@ -1264,6 +1276,26 @@ function updateStatsUI() {
   updateAchievementsUI(stats);
 }
 
+/************* RESET STATS *************/
+function resetStats() {
+  const ok = confirm(
+    "Reset all LOSWords stats?\n\n" +
+    "This will erase your games played, streaks, achievements and puzzle history.\n" +
+    "This cannot be undone."
+  );
+  if (!ok) return;
+
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+  } catch {
+    // ignore
+  }
+  updateStatsUI();
+  showMessage("Stats reset.");
+}
+
+resetStatsButton.addEventListener("click", resetStats);
+
 /************* END-OF-GAME MODAL *************/
 function openEndModal(didWin, isToday) {
   updateStatsUI();
@@ -1486,7 +1518,7 @@ onboardingModal.addEventListener("click", (e) => {
 
 /************* GALLERY BUTTON *************/
 galleryButton.addEventListener("click", () => {
-  // gallery.html should link back as LOSWords2.html?puzzleId=ID
+  // gallery.html should link back as index.html?puzzleId=ID
   window.location.href = "gallery.html";
 });
 
@@ -1495,14 +1527,23 @@ initPreferences();
 buildKeyboard();
 todayIndex = getDailyIndex();
 
-// Support deep link from gallery: LOSWords2.html?puzzleId=XXX (where XXX matches puzzle.id)
+// Support deep link from gallery: index.html?puzzleId=XXX or ?puzzleIndex=YYY
 let initialIndex = todayIndex;
 if (puzzles.length) {
   const params = new URLSearchParams(window.location.search);
   const puzzleIdParam = params.get("puzzleId");
-  if (puzzleIdParam != null) {
-    const idx = puzzles.findIndex(p => String(p.id) === String(puzzleIdParam));
-    if (idx !== -1) {
+  const puzzleIndexParam = params.get("puzzleIndex");
+
+  if (puzzleIdParam !== null) {
+    const byId = puzzles.findIndex(
+      (p, i) => String(p.id) === String(puzzleIdParam)
+    );
+    if (byId !== -1) {
+      initialIndex = byId;
+    }
+  } else if (puzzleIndexParam !== null) {
+    const idx = parseInt(puzzleIndexParam, 10);
+    if (!Number.isNaN(idx) && idx >= 0 && idx < puzzles.length) {
       initialIndex = idx;
     }
   }

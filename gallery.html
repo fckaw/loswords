@@ -276,7 +276,8 @@ h1 {
 const STORAGE_KEY = "loswords-stats-v1";
 const puzzles = window.puzzles || [];
 
-/* ---------- DATE & TODAY INDEX (match main game logic) ---------- */
+/* ---------- TODAY INDEX (match main game logic) ---------- */
+// Same as in index.html: daily puzzle index based on epoch + modulo.
 function getDailyIndex() {
   if (!puzzles.length) return 0;
   const epoch = new Date(2025, 0, 1);  // 1 Jan 2025
@@ -289,15 +290,19 @@ function getDailyIndex() {
   return idx;
 }
 
-function getDateForIndex(index) {
-  const epoch = new Date(2025, 0, 1);
-  epoch.setHours(0, 0, 0, 0);
-  const msPerDay = 24 * 60 * 60 * 1000;
-  const d = new Date(epoch.getTime() + index * msPerDay);
+const TODAY_INDEX = getDailyIndex();
+
+/* THIS is the important bit:
+   Puzzle date = today's date + (puzzleIndex - TODAY_INDEX) days.
+   This matches index.html's getDateForIndex, so gallery dates line up
+   with what the main game shows. */
+function getPuzzleDateForIndex(index) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const d = new Date(today);
+  d.setDate(d.getDate() + (index - TODAY_INDEX));
   return d;
 }
-
-const TODAY_INDEX = getDailyIndex();
 
 /* ---------- STATS ---------- */
 function loadStats() {
@@ -319,7 +324,7 @@ function getPuzzleKey(p, index) {
 function goToPuzzle(puzzle, index) {
   // If this puzzle is in the future, block play but allow postcard / buy
   if (index > TODAY_INDEX) {
-    const d = getDateForIndex(index);
+    const d = getPuzzleDateForIndex(index);
     const label = d.toLocaleDateString(undefined, {
       weekday: "long",
       year: "numeric",
@@ -392,7 +397,7 @@ function attachVideoBehaviour(video) {
   video.autoplay = true;
 
   // Try autoplay immediately
-  video.play().catch(() => { /* ignored – mobile may require tap */ });
+  video.play().catch(() => { /* mobile may require tap */ });
 
   // Toggle play/pause on tap
   video.addEventListener("click", () => {
@@ -439,7 +444,6 @@ function renderGallery() {
 
     const key = getPuzzleKey(puzzle, index);
     const entry = completed[key] || null;
-
     const isFuture = index > TODAY_INDEX;
 
     /* ----- MEDIA ----- */
@@ -502,10 +506,10 @@ function renderGallery() {
     header.appendChild(status);
     card.appendChild(header);
 
-    /* ----- DATE ----- */
+    /* ----- DATE (now matches main game) ----- */
     const dateEl = document.createElement("div");
     dateEl.className = "card-date";
-    const d = getDateForIndex(index);
+    const d = getPuzzleDateForIndex(index);
     dateEl.textContent = d.toLocaleDateString(undefined, {
       weekday: "short",
       year: "numeric",

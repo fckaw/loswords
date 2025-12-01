@@ -1,7 +1,7 @@
 id,mode,answer,clue,image
 1,phrase,head-to-head,Two bucks facing each other,1.jpg
 2,phrase,lady of leisure,Stretching cat,2.jpg
-3,phrase,nine lives,Three cats,3. jpg
+3,phrase,three's a crowd,Three cats,3. jpg
 4,phrase,slow traffic,Herd of sheep on the road,4.mp4
 5,phrase,silence is the loudest sound,"Circular, abandoned structure",5.jpg
 6,phrase,rock and roll,Vehicle stuck in rocks,6.mp4
@@ -35,4 +35,7 @@ id,mode,answer,clue,image
 34,phrase,crack a smile,,34.jpg
 35,phrase,frog face,,35.jpg
 36,phrase,easy on the eyes,,36.jpg
-37,phrase,three's a crowd,,37.jpg
+37,phrase,triple blessing,,37.jpg
+38,phrase,from dawn to dusk,,38.jpg
+39,phrase,"up, up and away",,39.jpg
+40,phrase,out of sorts,,40.jpg

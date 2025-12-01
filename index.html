@@ -18,13 +18,63 @@ body {
   align-items: center;
 }
 
-/* Top bar with title + stats button */
+/* Dyslexia-friendly font */
+body.dyslexia-font {
+  font-family: "OpenDyslexic", "Comic Sans MS", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+/* High contrast mode */
+body.high-contrast {
+  background: #000000;
+  color: #ffffff;
+}
+body.high-contrast #nav button,
+body.high-contrast #statsButton,
+body.high-contrast #accessibilityButton,
+body.high-contrast #onboardingButton,
+body.high-contrast #galleryButton,
+body.high-contrast .modal-actions button {
+  background: #000000;
+  color: #ffffff;
+  border-color: #ffffff;
+}
+body.high-contrast .phrase-tile {
+  background: #000000;
+  border-color: #ffffff;
+  color: #ffffff;
+}
+body.high-contrast .phrase-tile.revealed {
+  background: #ffffff;
+  color: #000000;
+}
+body.high-contrast .key {
+  background: #111827;
+  color: #f9fafb;
+}
+body.high-contrast .key.correct {
+  background: #22c55e;
+  color: #020617;
+}
+body.high-contrast .key.present,
+body.high-contrast .key.absent {
+  background: #eab308;
+  color: #020617;
+}
+body.high-contrast .stat {
+  background: #000000;
+  border-color: #ffffff;
+}
+body.high-contrast .modal-content {
+  background: #000000;
+}
+
+/* Top bar with title */
 #top-bar {
   width: 100%;
   max-width: 420px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   margin: 6px 0 4px;
 }
 
@@ -40,7 +90,7 @@ h1#title {
   h1#title { font-size: 28px; }
 }
 
-/* Today's / puzzle date label */
+/* Puzzle date label */
 #today {
   width: 100%;
   max-width: 420px;
@@ -74,6 +124,18 @@ h1#title {
   cursor: default;
 }
 
+/* Center buttons between Prev / Next */
+#nav-center {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+}
+#nav-center button {
+  font-size: 13px;
+  padding-inline: 10px;
+}
+
 /* Stats button */
 #statsButton {
   background: #4b5563;
@@ -83,12 +145,12 @@ h1#title {
   color: #f9fafb;
   font-weight: 600;
   cursor: pointer;
-  font-size: 3.3vw;
+  font-size: 14px;
 }
-@media (min-width: 480px) {
-  #statsButton { font-size: 14px; }
-}
-#statsButton:focus-visible {
+#statsButton:focus-visible,
+#accessibilityButton:focus-visible,
+#onboardingButton:focus-visible,
+#galleryButton:focus-visible {
   outline: 2px solid #facc15;
   outline-offset: 2px;
 }
@@ -228,7 +290,7 @@ h1#title {
   padding: 0;
 }
 
-/* Stats / end-of-game modal */
+/* Modal base */
 .modal {
   position: fixed;
   inset: 0;
@@ -280,6 +342,12 @@ h1#title {
   text-align: center;
 }
 
+.modal-subtitle {
+  margin: 0 0 8px;
+  font-size: 14px;
+  color: #9ca3af;
+}
+
 /* Stats in modal – BLUE BOXES */
 .stats-grid {
   display: grid;
@@ -303,6 +371,74 @@ h1#title {
   color: #dbeafe;
   margin-top: 3px;
 }
+
+/* Achievements */
+#achievementsSection {
+  margin-top: 14px;
+  border-top: 1px solid #1f2937;
+  padding-top: 10px;
+}
+#achievementsTitle {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: left;
+}
+#achievementsList {
+  margin-top: 6px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.achievement-badge {
+  background: #111827;
+  border-radius: 999px;
+  padding: 4px 8px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+/* Modal actions (share / tip / subscribe) */
+.modal-actions {
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.modal-actions button {
+  background: #4b5563;
+  border: 1px solid #1f2937;
+  border-radius: 999px;
+  padding: 7px 10px;
+  color: #f9fafb;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+/* Accessibility modal toggles */
+.toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 6px 0;
+  font-size: 14px;
+}
+.toggle-row input[type="checkbox"] {
+  width: 40px;
+  height: 20px;
+}
+
+/* Onboarding list */
+.onboarding-list {
+  margin: 4px 0 0;
+  padding-left: 18px;
+  font-size: 14px;
+  color: #e5e7eb;
+}
+.onboarding-list li {
+  margin-bottom: 4px;
+}
 </style>
 </head>
 
@@ -313,13 +449,18 @@ h1#title {
 
 <div id="top-bar">
   <h1 id="title">LOSWords</h1>
-  <button id="statsButton" aria-label="View stats">📊</button>
 </div>
 
 <div id="today"></div>
 
 <div id="nav">
   <button id="prevBtn">&larr; Prev</button>
+  <div id="nav-center">
+    <button id="accessibilityButton" aria-label="Accessibility options">♿</button>
+    <button id="onboardingButton" aria-label="How to play LOSWords">?</button>
+    <button id="statsButton" aria-label="View stats">📊</button>
+    <button id="galleryButton">Gallery</button>
+  </div>
   <button id="nextBtn">Next &rarr;</button>
 </div>
 
@@ -363,6 +504,60 @@ h1#title {
         <div class="stat-label">Max<br />streak</div>
       </div>
     </div>
+
+    <div id="achievementsSection">
+      <h3 id="achievementsTitle">Achievements</h3>
+      <div id="achievementsList"></div>
+    </div>
+
+    <div class="modal-actions">
+      <button id="shareButton">Share</button>
+      <button id="tipButton">Tip / Buy me a coffee</button>
+      <button id="subscribeButton">Subscribe</button>
+    </div>
+  </div>
+</div>
+
+<!-- Accessibility modal -->
+<div id="accessibilityModal" class="modal hidden" aria-modal="true" role="dialog">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Accessibility</h2>
+      <button id="closeAccessibility" class="modal-close" aria-label="Close accessibility settings">&times;</button>
+    </div>
+    <p class="modal-subtitle">Tune LOSWords to suit your needs.</p>
+    <div class="toggle-row">
+      <span>Dyslexia-friendly font</span>
+      <input type="checkbox" id="toggleDyslexia" />
+    </div>
+    <div class="toggle-row">
+      <span>High contrast mode</span>
+      <input type="checkbox" id="toggleContrast" />
+    </div>
+    <div class="toggle-row">
+      <span>Reduce motion (no confetti)</span>
+      <input type="checkbox" id="toggleMotion" />
+    </div>
+    <div class="toggle-row">
+      <span>Sound effects</span>
+      <input type="checkbox" id="toggleSound" />
+    </div>
+  </div>
+</div>
+
+<!-- Gentle onboarding modal -->
+<div id="onboardingModal" class="modal hidden" aria-modal="true" role="dialog">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Welcome to LOSWords</h2>
+      <button id="closeOnboarding" class="modal-close" aria-label="Close welcome">&times;</button>
+    </div>
+    <p class="modal-subtitle">A quick how-to:</p>
+    <ul class="onboarding-list">
+      <li>Guess the hidden phrase one letter at a time.</li>
+      <li>You have 8 wrong guesses before the puzzle ends.</li>
+      <li>Use Prev/Next and the Gallery to explore archive puzzles.</li>
+    </ul>
   </div>
 </div>
 
@@ -373,11 +568,19 @@ const puzzles = window.puzzles || [];
 /************* CONSTANTS *************/
 const MAX_WRONG = 8;                      // 8 wrong guesses
 const STORAGE_KEY = "loswords-stats-v1";
+const PREFS_KEY = "loswords-prefs-v1";
+
+/************* PREFERENCES & AUDIO *************/
+let preferences = null;
+let audioCtx = null;
+let masterGain = null;
 
 /************* STATE & DOM *************/
 let currentIndex = 0;
 let todayIndex = 0;
 let gameOver = false;
+let currentPuzzleKey = "";
+let currentPuzzleNumber = null;
 
 const titleEl     = document.getElementById("title");
 const clueEl      = document.getElementById("clue");
@@ -396,12 +599,136 @@ const closeStats  = document.getElementById("closeStats");
 const statsTitle  = document.getElementById("statsTitle");
 const endTextEl   = document.getElementById("endText");
 
+const achievementsTitle = document.getElementById("achievementsTitle");
+const achievementsList  = document.getElementById("achievementsList");
+
 const prevBtn     = document.getElementById("prevBtn");
 const nextBtn     = document.getElementById("nextBtn");
 
+const shareButton     = document.getElementById("shareButton");
+const tipButton       = document.getElementById("tipButton");
+const subscribeButton = document.getElementById("subscribeButton");
+
+const accessibilityButton = document.getElementById("accessibilityButton");
+const accessibilityModal  = document.getElementById("accessibilityModal");
+const closeAccessibility  = document.getElementById("closeAccessibility");
+
+const onboardingButton = document.getElementById("onboardingButton");
+const onboardingModal  = document.getElementById("onboardingModal");
+const closeOnboarding  = document.getElementById("closeOnboarding");
+
+const galleryButton = document.getElementById("galleryButton");
+
+const toggleDyslexia = document.getElementById("toggleDyslexia");
+const toggleContrast = document.getElementById("toggleContrast");
+const toggleMotion   = document.getElementById("toggleMotion");
+const toggleSound    = document.getElementById("toggleSound");
+
+/************* PREFERENCES HELPERS *************/
+function loadPrefs() {
+  const defaults = {
+    dyslexiaFont: false,
+    highContrast: false,
+    reduceMotion: false,
+    soundOn: true
+  };
+  try {
+    const raw = localStorage.getItem(PREFS_KEY);
+    if (!raw) return { ...defaults };
+    const parsed = JSON.parse(raw);
+    return { ...defaults, ...parsed };
+  } catch {
+    return { ...defaults };
+  }
+}
+
+function savePrefs() {
+  try {
+    localStorage.setItem(PREFS_KEY, JSON.stringify(preferences));
+  } catch {
+    // ignore
+  }
+}
+
+function applyPrefsToDOM() {
+  if (!preferences) return;
+
+  document.body.classList.toggle("dyslexia-font", preferences.dyslexiaFont);
+  document.body.classList.toggle("high-contrast", preferences.highContrast);
+  document.body.classList.toggle("reduce-motion", preferences.reduceMotion);
+
+  if (toggleDyslexia) toggleDyslexia.checked = preferences.dyslexiaFont;
+  if (toggleContrast) toggleContrast.checked = preferences.highContrast;
+  if (toggleMotion)   toggleMotion.checked   = preferences.reduceMotion;
+  if (toggleSound)    toggleSound.checked    = preferences.soundOn;
+}
+
+function initPreferences() {
+  preferences = loadPrefs();
+  applyPrefsToDOM();
+}
+
+/************* AUDIO (WEB AUDIO SOFT TONES) *************/
+function initAudio() {
+  if (audioCtx) return;
+  try {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return;
+    audioCtx = new AC();
+    masterGain = audioCtx.createGain();
+    masterGain.gain.value = 0.15;
+    masterGain.connect(audioCtx.destination);
+  } catch {
+    audioCtx = null;
+  }
+}
+
+function ensureAudioRunning() {
+  if (!audioCtx) return;
+  if (audioCtx.state === "suspended") {
+    audioCtx.resume().catch(() => {});
+  }
+}
+
+function playBeep(freq, duration = 0.12, volume = 1) {
+  if (!preferences || !preferences.soundOn) return;
+  initAudio();
+  if (!audioCtx || !masterGain) return;
+  ensureAudioRunning();
+
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  const now = audioCtx.currentTime;
+
+  osc.type = "sine";
+  osc.frequency.setValueAtTime(freq, now);
+
+  gain.gain.setValueAtTime(0, now);
+  gain.gain.linearRampToValueAtTime(volume, now + 0.01);
+  gain.gain.linearRampToValueAtTime(0, now + duration);
+
+  osc.connect(gain);
+  gain.connect(masterGain);
+
+  osc.start(now);
+  osc.stop(now + duration + 0.05);
+}
+
+function playCorrectSound() {
+  playBeep(880, 0.12, 0.9);
+}
+function playWrongSound() {
+  playBeep(220, 0.15, 0.8);
+}
+function playWinSound() {
+  playBeep(1046, 0.16, 0.9);
+  setTimeout(() => playBeep(1318, 0.16, 0.9), 160);
+}
+function playLossSound() {
+  playBeep(196, 0.3, 0.8);
+}
+
 /************* DATE LABEL (per puzzle index) *************/
-/* Figure out the calendar date for a given puzzle index,
-   based on how far it is from today's index. */
 function getDateForIndex(index) {
   const today = new Date();
   const diff = index - todayIndex; // how many days away from today
@@ -595,6 +922,8 @@ function handlePhraseKey(letter) {
   pGuessed.add(l);
 
   if (pAnswer.includes(l)) {
+    playCorrectSound();
+
     pAnswer.split("").forEach((ch, i) => {
       if (ch === l && pTiles[i]) {
         pTiles[i].classList.add("revealed");
@@ -609,10 +938,13 @@ function handlePhraseKey(letter) {
       showMessage("Solved! 🎉");
       gameOver = true;
       const isToday = currentIndex === todayIndex;
-      recordResult(true, isToday);
+      playWinSound();
+      recordResult(true, isToday, currentPuzzleKey, pWrong);
+      launchConfetti();
       openEndModal(true, isToday);
     }
   } else {
+    playWrongSound();
     pWrong++;
     setKeyStatus(letter, "absent");
     updateLives();
@@ -621,7 +953,8 @@ function handlePhraseKey(letter) {
       gameOver = true;
       revealFullAnswer();
       const isToday = currentIndex === todayIndex;
-      recordResult(false, isToday);
+      playLossSound();
+      recordResult(false, isToday, currentPuzzleKey, pWrong);
       openEndModal(false, isToday);
     }
   }
@@ -638,6 +971,69 @@ function revealFullAnswer() {
       pTiles[i].textContent = ch.toUpperCase();
     }
   });
+}
+
+/************* SIMPLE CONFETTI *************/
+function launchConfetti() {
+  if (preferences && preferences.reduceMotion) return;
+
+  const duration = 1500;
+  const animationEnd = Date.now() + duration;
+  const colors = ["#fde68a","#fca5a5","#bfdbfe","#bbf7d0","#e9d5ff"];
+
+  const container = document.createElement("div");
+  container.style.position = "fixed";
+  container.style.inset = "0";
+  container.style.pointerEvents = "none";
+  container.style.overflow = "hidden";
+  document.body.appendChild(container);
+
+  const particles = [];
+  const count = 120;
+
+  for (let i = 0; i < count; i++) {
+    const el = document.createElement("div");
+    el.style.position = "absolute";
+    el.style.width = "8px";
+    el.style.height = "14px";
+    el.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+    el.style.top = "-20px";
+    el.style.left = Math.random() * 100 + "%";
+    el.style.opacity = "1";
+    el.style.transform = `rotate(${Math.random() * 360}deg)`;
+    container.appendChild(el);
+
+    particles.push({
+      elem: el,
+      x: Math.random() * window.innerWidth,
+      y: -20,
+      angle: Math.random() * Math.PI * 2,
+      speed: 2 + Math.random() * 3
+    });
+  }
+
+  function frame() {
+    const now = Date.now();
+    const timeLeft = animationEnd - now;
+    if (timeLeft <= 0) {
+      document.body.removeChild(container);
+      return;
+    }
+    const progress = 1 - timeLeft / duration;
+
+    particles.forEach(p => {
+      p.y += p.speed;
+      p.x += Math.sin(p.angle) * 1.5;
+      p.angle += 0.01;
+
+      p.elem.style.transform = `translate(${p.x}px, ${p.y}px) rotate(${progress * 720}deg)`;
+      p.elem.style.opacity = String(1 - progress);
+    });
+
+    requestAnimationFrame(frame);
+  }
+
+  requestAnimationFrame(frame);
 }
 
 /************* INPUT *************/
@@ -690,15 +1086,22 @@ function loadStats() {
     currentStreak: 0,
     maxStreak: 0,
     lastPlayedDate: null,
-    lastResult: null
+    lastResult: null,
+    completed: {},      // per-puzzle completion
+    flawlessWins: 0,
+    archivePlayed: 0
   };
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return {...defaults};
+    if (!raw) return { ...defaults };
     const parsed = JSON.parse(raw);
-    return {...defaults, ...parsed};
+    const merged = { ...defaults, ...parsed };
+    if (!merged.completed) merged.completed = {};
+    if (merged.flawlessWins == null) merged.flawlessWins = 0;
+    if (merged.archivePlayed == null) merged.archivePlayed = 0;
+    return merged;
   } catch {
-    return {...defaults};
+    return { ...defaults };
   }
 }
 
@@ -719,15 +1122,32 @@ function saveStats(stats) {
    - currentStreak
    - maxStreak
    - lastPlayedDate / lastResult
+
+  Each puzzle also recorded in stats.completed[puzzleKey].
+  wrongGuesses is used for "flawless" wins.
 */
-function recordResult(didWin, isToday) {
+function recordResult(didWin, isToday, puzzleKey, wrongGuesses) {
   const stats = loadStats();
   const todayKey = getTodayKey();
 
-  // Count every finished game towards Played & Wins
-  stats.gamesPlayed += 1;
-  if (didWin) {
-    stats.wins += 1;
+  if (!stats.completed) stats.completed = {};
+  if (stats.flawlessWins == null) stats.flawlessWins = 0;
+  if (stats.archivePlayed == null) stats.archivePlayed = 0;
+
+  const alreadyPlayed = !!stats.completed[puzzleKey]?.played;
+
+  // Count towards Played/Wins only once per puzzle
+  if (!alreadyPlayed) {
+    stats.gamesPlayed += 1;
+    if (didWin) {
+      stats.wins += 1;
+    }
+    if (!isToday) {
+      stats.archivePlayed += 1;
+    }
+    if (didWin && wrongGuesses === 0) {
+      stats.flawlessWins += 1;
+    }
   }
 
   if (isToday) {
@@ -751,7 +1171,83 @@ function recordResult(didWin, isToday) {
     }
   }
 
+  stats.completed[puzzleKey] = { played: true, won: didWin };
   saveStats(stats);
+}
+
+function computeAchievements(stats) {
+  const achievements = [];
+
+  if (stats.wins >= 1) {
+    achievements.push({
+      id: "firstWin",
+      label: "🏅 First win",
+      description: "Win your first puzzle."
+    });
+  }
+  if (stats.maxStreak >= 3) {
+    achievements.push({
+      id: "streak3",
+      label: "🔥 3-day streak",
+      description: "Win 3 daily puzzles in a row."
+    });
+  }
+  if (stats.maxStreak >= 7) {
+    achievements.push({
+      id: "streak7",
+      label: "💎 7-day streak",
+      description: "Win 7 daily puzzles in a row."
+    });
+  }
+  if ((stats.flawlessWins || 0) >= 1) {
+    achievements.push({
+      id: "flawless",
+      label: "✨ Flawless solve",
+      description: "Solve a puzzle with no wrong guesses."
+    });
+  }
+  if ((stats.archivePlayed || 0) >= 3) {
+    achievements.push({
+      id: "archive",
+      label: "📚 Archive explorer",
+      description: "Play at least 3 archive puzzles."
+    });
+  }
+  if (stats.gamesPlayed >= 10) {
+    achievements.push({
+      id: "tenPlayed",
+      label: "🔟 10 puzzles played",
+      description: "Play 10 puzzles in total."
+    });
+  }
+
+  return achievements;
+}
+
+function updateAchievementsUI(stats) {
+  if (!achievementsList || !achievementsTitle) return;
+
+  const achievements = computeAchievements(stats);
+  achievementsList.innerHTML = "";
+
+  if (!achievements.length) {
+    achievementsTitle.textContent = "Achievements";
+    const p = document.createElement("p");
+    p.textContent = "Keep playing to unlock badges!";
+    p.style.fontSize = "13px";
+    p.style.color = "#9ca3af";
+    achievementsList.appendChild(p);
+    return;
+  }
+
+  achievementsTitle.textContent = "Achievements";
+  achievements.forEach(a => {
+    const badge = document.createElement("div");
+    badge.className = "achievement-badge";
+    badge.textContent = a.label;
+    badge.title = a.description;
+    achievementsList.appendChild(badge);
+  });
 }
 
 function updateStatsUI() {
@@ -764,6 +1260,8 @@ function updateStatsUI() {
   document.getElementById("stat-win").textContent     = winPct;
   document.getElementById("stat-current").textContent = stats.currentStreak;
   document.getElementById("stat-max").textContent     = stats.maxStreak;
+
+  updateAchievementsUI(stats);
 }
 
 /************* END-OF-GAME MODAL *************/
@@ -818,6 +1316,36 @@ nextBtn.addEventListener("click", () => {
   }
 });
 
+/************* SHARE / TIP / SUBSCRIBE *************/
+shareButton.addEventListener("click", () => {
+  const url = window.location.href;
+  const puzzlePart = currentPuzzleNumber != null
+    ? `Puzzle #${currentPuzzleNumber}`
+    : "LOSWords";
+  const text = `I'm playing LOSWords! ${puzzlePart}. Can you solve it?\n\n${url}`;
+
+  if (navigator.share) {
+    navigator.share({ title: "LOSWords", text, url }).catch(() => {});
+  } else if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text)
+      .then(() => alert("Share text copied to clipboard!"))
+      .catch(() => alert("Share this text:\n\n" + text));
+  } else {
+    alert("Share this text:\n\n" + text);
+  }
+});
+
+// TODO: replace YOURNAME with your Buy Me a Coffee handle
+tipButton.addEventListener("click", () => {
+  window.open("https://www.buymeacoffee.com/YOURNAME", "_blank");
+});
+
+// TODO: replace YOUREMAIL@example.com with your email / mailing list endpoint
+subscribeButton.addEventListener("click", () => {
+  window.location.href =
+    "mailto:YOUREMAIL@example.com?subject=Subscribe%20to%20LOSWords&body=Hi%2C%20please%20subscribe%20me%20to%20LOSWords%20updates.";
+});
+
 /************* LOADING PUZZLE *************/
 function loadPuzzle(index) {
   if (!puzzles.length) {
@@ -825,10 +1353,15 @@ function loadPuzzle(index) {
     clueEl.textContent  = "No puzzles loaded. Check puzzles.js.";
     gridEl.innerHTML    = "";
     showMedia(null);
+    todayEl.textContent = "";
     return;
   }
 
   const p = puzzles[index % puzzles.length];
+  const number = p.id != null ? p.id : (index + 1);
+  currentPuzzleKey = (p.id != null) ? String(p.id) : `index-${index}`;
+  currentPuzzleNumber = number;
+
   gameOver = false;
 
   resetKeyboard();
@@ -838,9 +1371,7 @@ function loadPuzzle(index) {
   endTextEl.textContent = "";
   statsTitle.textContent = "Stats";
 
-  const number = p.id != null ? p.id : (index + 1);
   titleEl.textContent = "LOSWords #" + number;
-
   showMedia(p.image);
 
   clueEl.innerHTML =
@@ -848,17 +1379,33 @@ function loadPuzzle(index) {
     `<br><span class="instruction">Guess the phrase one letter at a time. You have ${MAX_WRONG} wrong guesses.</span>`;
 
   setupPhrase(p);
-
-  // Update the date label for this puzzle
+  updateLives();
   updateDateLabel();
 
-  // Only lock if it's today's puzzle and already played today
+  // Check if this puzzle has already been played
   const stats = loadStats();
-  const todayKey = getTodayKey();
-  if (index === todayIndex && stats.lastPlayedDate === todayKey) {
+  const completed = stats.completed || {};
+  const entry = completed[currentPuzzleKey];
+
+  if (entry && entry.played) {
+    // Always show the full answer if they've played it
     revealFullAnswer();
     gameOver = true;
-    showMessage("You've already played today's LOSWORDS. Come back tomorrow!");
+    if (entry.won) {
+      showMessage("You've already solved this LOSWords.");
+    } else {
+      showMessage("You've already played this LOSWords. The answer is shown above.");
+    }
+  } else {
+    // Extra lock: if this is today's puzzle AND stats say today's already played,
+    // but for some reason it's not in completed (older data), still lock it.
+    const todayKey = getTodayKey();
+    if (index === todayIndex &&
+        stats.lastPlayedDate === todayKey) {
+      revealFullAnswer();
+      gameOver = true;
+      showMessage("You've already played today's LOSWORDS. Come back tomorrow!");
+    }
   }
 
   setTimeout(() => hiddenInput.focus(), 50);
@@ -883,10 +1430,85 @@ statsModal.addEventListener("click", (e) => {
   }
 });
 
+/************* ACCESSIBILITY MODAL EVENTS *************/
+accessibilityButton.addEventListener("click", () => {
+  applyPrefsToDOM();
+  accessibilityModal.classList.remove("hidden");
+});
+
+closeAccessibility.addEventListener("click", () => {
+  accessibilityModal.classList.add("hidden");
+});
+
+accessibilityModal.addEventListener("click", (e) => {
+  if (e.target === accessibilityModal) {
+    accessibilityModal.classList.add("hidden");
+  }
+});
+
+toggleDyslexia.addEventListener("change", () => {
+  preferences.dyslexiaFont = toggleDyslexia.checked;
+  applyPrefsToDOM();
+  savePrefs();
+});
+
+toggleContrast.addEventListener("change", () => {
+  preferences.highContrast = toggleContrast.checked;
+  applyPrefsToDOM();
+  savePrefs();
+});
+
+toggleMotion.addEventListener("change", () => {
+  preferences.reduceMotion = toggleMotion.checked;
+  applyPrefsToDOM();
+  savePrefs();
+});
+
+toggleSound.addEventListener("change", () => {
+  preferences.soundOn = toggleSound.checked;
+  savePrefs();
+});
+
+/************* ONBOARDING MODAL EVENTS *************/
+onboardingButton.addEventListener("click", () => {
+  onboardingModal.classList.remove("hidden");
+});
+
+closeOnboarding.addEventListener("click", () => {
+  onboardingModal.classList.add("hidden");
+});
+
+onboardingModal.addEventListener("click", (e) => {
+  if (e.target === onboardingModal) {
+    onboardingModal.classList.add("hidden");
+  }
+});
+
+/************* GALLERY BUTTON *************/
+galleryButton.addEventListener("click", () => {
+  // gallery.html should link back as LOSWords2.html?puzzleId=ID
+  window.location.href = "gallery.html";
+});
+
 /************* START *************/
+initPreferences();
 buildKeyboard();
 todayIndex = getDailyIndex();
-currentIndex = todayIndex;
+
+// Support deep link from gallery: LOSWords2.html?puzzleId=XXX (where XXX matches puzzle.id)
+let initialIndex = todayIndex;
+if (puzzles.length) {
+  const params = new URLSearchParams(window.location.search);
+  const puzzleIdParam = params.get("puzzleId");
+  if (puzzleIdParam != null) {
+    const idx = puzzles.findIndex(p => String(p.id) === String(puzzleIdParam));
+    if (idx !== -1) {
+      initialIndex = idx;
+    }
+  }
+}
+
+currentIndex = initialIndex;
 loadPuzzle(currentIndex);
 updateNavButtons();
 

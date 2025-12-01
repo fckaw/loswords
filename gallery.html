@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>LOSWords – Gallery</title>
+<style>
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #6b7280;
+  color: #e5e7eb;
+  margin: 0;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+#top-bar {
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 6px 0 6px;
+}
+h1 {
+  margin: 0;
+  font-size: 24px;
+}
+#backButton {
+  background: #4b5563;
+  border: 1px solid #374151;
+  border-radius: 999px;
+  padding: 6px 12px;
+  color: #f9fafb;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 14px;
+}
+#intro {
+  max-width: 420px;
+  font-size: 14px;
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+/* View controls */
+#viewControls {
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+.view-toggle {
+  background: #4b5563;
+  border: 1px solid #374151;
+  border-radius: 999px;
+  padding: 4px 10px;
+  color: #e5e7eb;
+  font-size: 12px;
+  cursor: pointer;
+}
+.view-toggle-active {
+  background: #facc15;
+  border-color: #fbbf24;
+  color: #111827;
+}
+
+/* Gallery view modes */
+#gallery {
+  width: 100%;
+  max-width: 420px;
+  margin-bottom: 20px;
+}
+#gallery.list-view {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+#gallery.tiles-view {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 10px;
+}
+
+/* Cards */
+.card {
+  background: #111827;
+  border-radius: 12px;
+  padding: 8px 8px 10px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+}
+.card img,
+.card video {
+  width: 100%;
+  border-radius: 8px;
+  display: block;
+  margin-bottom: 6px;
+}
+.card img {
+  cursor: zoom-in; /* zoom option */
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+}
+.card-title {
+  font-weight: 700;
+  font-size: 15px;
+}
+.card-status {
+  font-size: 13px;
+  color: #bfdbfe;
+  text-align: right;
+  cursor: pointer; /* clickable */
+}
+.card-answer {
+  font-size: 14px;
+  margin-top: 4px;
+}
+.card-date {
+  font-size: 12px;
+  color: #9ca3af;
+  margin-top: 2px;
+}
+.card-footer {
+  margin-top: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.card-footer-left {
+  display: flex;
+  gap: 6px;
+}
+.card-footer button {
+  background: #4b5563;
+  border: 1px solid #374151;
+  border-radius: 999px;
+  padding: 5px 10px;
+  color: #f9fafb;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 12px;
+}
+.card-footer-right {
+  margin-left: auto;
+  display: flex;
+  gap: 6px;
+}
+.card-footer-right button {
+  font-size: 11px;
+  padding: 4px 8px;
+}
+.card-footer button[disabled] {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.empty {
+  text-align: center;
+  font-size: 14px;
+  margin-top: 20px;
+}
+
+/* Zoom overlay */
+#zoomOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  cursor: zoom-out;
+}
+#zoomOverlay.hidden {
+  display: none;
+}
+#zoomInner {
+  position: relative;
+  max-width: 95vw;
+  max-height: 95vh;
+}
+#zoomInner img {
+  max-width: 100%;
+  max-height: 100%;
+  border-radius: 12px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.8);
+}
+#zoomCaption {
+  position: absolute;
+  left: 50%;
+  bottom: 10px;
+  transform: translateX(-50%);
+  color: #e5e7eb;
+  font-size: 12px;
+  background: rgba(15,23,42,0.7);
+  padding: 4px 8px;
+  border-radius: 999px;
+}
+</style>
+</head>
+<body>
+
+<script src="puzzles.js?v=2"></script>
+
+<div id="top-bar">
+  <h1>Gallery</h1>
+  <button id="backButton">Back to game</button>
+</div>
+
+<div id="intro">
+  Browse all LOSWords puzzles. See the ones you've played and jump into new ones.
+</div>
+
+<div id="viewControls" aria-label="View options">
+  <button id="tilesViewBtn" class="view-toggle" data-view="tiles">Tiles</button>
+  <button id="listViewBtn" class="view-toggle view-toggle-active" data-view="list">List</button>
+</div>
+
+<div id="gallery" class="list-view"></div>
+<div id="emptyMessage" class="empty" style="display:none;">
+  No puzzles found. Check your <code>puzzles.js</code> file.
+</div>
+
+<!-- Zoom overlay for images -->
+<div id="zoomOverlay" class="hidden">
+  <div id="zoomInner">
+    <img id="zoomImg" src="" alt="" />
+    <div id="zoomCaption">Click anywhere to close</div>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY = "loswords-stats-v1";
+const puzzles = window.puzzles || [];
+
+// ---- DATE & "TODAY" INDEX (match index.html logic) ----
+function getDailyIndex() {
+  if (!puzzles.length) return 0;
+  const epoch = new Date(2025, 0, 1);  // 1 Jan 2025
+  const today = new Date();
+  epoch.setHours(0, 0, 0, 0);
+  today.setHours(0, 0, 0, 0);
+  const msPerDay = 24 * 60 * 60 * 1000;
+  const diffDays = Math.floor((today - epoch) / msPerDay);
+  // Same modulo logic as the main game
+  const idx = ((diffDays % puzzles.length) + puzzles.length) % puzzles.length;
+  return idx;
+}
+
+function getDateForIndex(index) {
+  const epoch = new Date(2025, 0, 1);
+  epoch.setHours(0, 0, 0, 0);
+  const msPerDay = 24 * 60 * 60 * 1000;
+  const d = new Date(epoch.getTime() + index * msPerDay);
+  return d;
+}
+
+const TODAY_INDEX = getDailyIndex();
+
+// ---- STATS ----
+function loadStats() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return {};
+    return JSON.parse(raw);
+  } catch {
+    return {};
+  }
+}
+
+// Stable key per puzzle (matches index.html logic)
+function getPuzzleKey(p, index) {
+  if (p.id != null) return String(p.id);
+  return "index-" + index;
+}
+
+// ---- NAVIGATION TO MAIN GAME ----
+function goToPuzzle(puzzle, index) {
+  // If this puzzle is in the future, don't let them play yet
+  if (index > TODAY_INDEX) {
+    const d = getDateForIndex(index);
+    const label = d.toLocaleDateString(undefined, {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric"
+    });
+    alert(
+      "This LOSWords puzzle is not live yet.\n\n" +
+      "It unlocks on " + label + ".\n\n" +
+      "You can still build a postcard or buy this image in the meantime."
+    );
+    return;
+  }
+
+  // Otherwise, deep-link into index.html
+  if (puzzle.id != null) {
+    window.location.href =
+      "index.html?puzzleId=" + encodeURIComponent(puzzle.id);
+  } else {
+    window.location.href =
+      "index.html?puzzleIndex=" + encodeURIComponent(index);
+  }
+}
+
+// ---- ZOOM OVERLAY ----
+const zoomOverlay = document.getElementById("zoomOverlay");
+const zoomImg = document.getElementById("zoomImg");
+
+function openZoom(src, altText) {
+  zoomImg.src = src;
+  zoomImg.alt = altText || "";
+  zoomOverlay.classList.remove("hidden");
+}
+
+zoomOverlay.addEventListener("click", () => {
+  zoomOverlay.classList.add("hidden");
+  zoomImg.src = "";
+});
+
+// ---- VIEW TOGGLES (tiles / list) ----
+const galleryEl = document.getElementById("gallery");
+const tilesViewBtn = document.getElementById("tilesViewBtn");
+const listViewBtn = document.getElementById("listViewBtn");
+
+function setView(mode) {
+  galleryEl.classList.remove("tiles-view", "list-view");
+  tilesViewBtn.classList.remove("view-toggle-active");
+  listViewBtn.classList.remove("view-toggle-active");
+
+  if (mode === "tiles") {
+    galleryEl.classList.add("tiles-view");
+    tilesViewBtn.classList.add("view-toggle-active");
+  } else {
+    galleryEl.classList.add("list-view");
+    listViewBtn.classList.add("view-toggle-active");
+  }
+}
+
+tilesViewBtn.addEventListener("click", () => setView("tiles"));
+listViewBtn.addEventListener("click", () => setView("list"));
+
+// ---- RENDER GALLERY ----
+function renderGallery() {
+  const stats = loadStats();
+  const completed = (stats && stats.completed) || {};
+  const emptyMessage = document.getElementById("emptyMessage");
+
+  galleryEl.innerHTML = "";
+
+  if (!puzzles.length) {
+    emptyMessage.style.display = "block";
+    return;
+  } else {
+    emptyMessage.style.display = "none";
+  }
+
+  puzzles.forEach((puzzle, index) => {
+    const card = document.createElement("div");
+    card.className = "card";
+
+    const key = getPuzzleKey(puzzle, index);
+    const entry = completed[key] || null;
+
+    // Media
+    const mediaFile = puzzle.image;
+    if (mediaFile && typeof mediaFile === "string" &&
+        mediaFile.toLowerCase().endsWith(".mp4")) {
+      const vid = document.createElement("video");
+      vid.src = mediaFile;
+      vid.playsInline = true;
+      vid.muted = true;
+      vid.loop = true;
+      vid.autoplay = false;
+      card.appendChild(vid);
+    } else if (mediaFile) {
+      const img = document.createElement("img");
+      img.src = mediaFile;
+      img.alt = puzzle.clue || "";
+      img.addEventListener("click", () => {
+        openZoom(mediaFile, puzzle.clue || "LOSWords image");
+      });
+      card.appendChild(img);
+    }
+
+    // Header (title + status)
+    const header = document.createElement("div");
+    header.className = "card-header";
+
+    const title = document.createElement("div");
+    const num = puzzle.id != null ? puzzle.id : (index + 1);
+    title.className = "card-title";
+    title.textContent = "LOSWords #" + num;
+    header.appendChild(title);
+
+    const status = document.createElement("div");
+    status.className = "card-status";
+
+    const isFuture = index > TODAY_INDEX;
+
+    if (isFuture) {
+      status.textContent = "Status: Unlocks soon";
+    } else if (entry && entry.played) {
+      status.textContent = entry.won ? "Status: Won" : "Status: Played";
+    } else {
+      status.textContent = "Status: Not played";
+    }
+
+    // Click status to attempt to play (future puzzles will be blocked with message)
+    status.addEventListener("click", () => {
+      goToPuzzle(puzzle, index);
+    });
+
+    header.appendChild(status);
+    card.appendChild(header);
+
+    // Date label
+    const dateEl = document.createElement("div");
+    dateEl.className = "card-date";
+    const d = getDateForIndex(index);
+    dateEl.textContent = d.toLocaleDateString(undefined, {
+      weekday: "short",
+      year: "numeric",
+      month: "short",
+      day: "numeric"
+    });
+    card.appendChild(dateEl);
+
+    // Answer
+    const answer = document.createElement("div");
+    answer.className = "card-answer";
+    if (entry && entry.played) {
+      answer.textContent = "Answer: " + puzzle.answer;
+    } else if (isFuture) {
+      answer.textContent = "Answer: ??? (unlocks on this date)";
+    } else {
+      answer.textContent = "Answer: ??? (play to reveal)";
+    }
+    card.appendChild(answer);
+
+    // Footer
+    const footer = document.createElement("div");
+    footer.className = "card-footer";
+
+    const footerLeft = document.createElement("div");
+    footerLeft.className = "card-footer-left";
+
+    const playBtn = document.createElement("button");
+    playBtn.textContent = "Play this puzzle";
+
+    if (isFuture) {
+      // Still clickable, but will show "wait for the date" message
+      playBtn.addEventListener("click", () => {
+        goToPuzzle(puzzle, index);
+      });
+    } else {
+      playBtn.addEventListener("click", () => {
+        goToPuzzle(puzzle, index);
+      });
+    }
+
+    footerLeft.appendChild(playBtn);
+    footer.appendChild(footerLeft);
+
+    const footerRight = document.createElement("div");
+    footerRight.className = "card-footer-right";
+
+    const postcardBtn = document.createElement("button");
+    postcardBtn.textContent = "Build postcard";
+    postcardBtn.addEventListener("click", () => {
+      // Placeholder: wire this to your postcard builder page if/when you have one
+      alert("This will eventually let you build a postcard from this image.");
+    });
+    footerRight.appendChild(postcardBtn);
+
+    const buyBtn = document.createElement("button");
+    buyBtn.textContent = "Buy this image";
+    buyBtn.addEventListener("click", () => {
+      // Placeholder: link to your store / checkout
+      alert("This will eventually link to a store to buy this image.");
+    });
+    footerRight.appendChild(buyBtn);
+
+    footer.appendChild(footerRight);
+    card.appendChild(footer);
+
+    galleryEl.appendChild(card);
+  });
+}
+
+document.getElementById("backButton").addEventListener("click", () => {
+  // Main game is now index.html
+  window.location.href = "index.html";
+});
+
+// Default to list view
+setView("list");
+renderGallery();
+</script>
+
+</body>
+</html>
